@@ -1,0 +1,6 @@
+{
+  "name": "Roundtable",
+  "description": "AI-powered multi-device live conversation platform. Real-time conversations, clearer than ever.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
