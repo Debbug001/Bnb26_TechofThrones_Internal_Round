@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { env } from './config/env';
+import { env, allowedOrigins } from './config/env';
 import healthRoutes from './routes/health.routes';
 import sessionRoutes from './routes/sessions.routes';
 import { notFoundHandler } from './middleware/not-found.middleware';
@@ -9,18 +9,17 @@ import { errorHandler } from './middleware/error.middleware';
 export const createApp = () => {
   const app = express();
 
-  // Configure CORS strictly for the frontend origin
+  // CORS:
+  //  - development: allow any origin (phones on LAN, tunnels). We use no cookies, so this is low risk.
+  //  - production: allow only the origins listed in CLIENT_URL (comma separated).
+  // A blocked origin simply gets no CORS headers (browser blocks it) instead of a 500 error.
   app.use(
     cors({
       origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps, curl, or Postman)
-        if (!origin) return callback(null, true);
-        if (origin === env.CLIENT_URL) {
-          return callback(null, true);
-        }
-        return callback(new Error(`CORS blocked for origin: ${origin}`));
+        if (!origin) return callback(null, true); // curl, Postman, server-to-server
+        if (env.NODE_ENV !== 'production') return callback(null, true);
+        return callback(null, allowedOrigins.includes(origin.replace(/\/$/, '')));
       },
-      credentials: true,
     })
   );
 

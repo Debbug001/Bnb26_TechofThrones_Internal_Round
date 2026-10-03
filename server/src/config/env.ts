@@ -19,10 +19,8 @@ const envSchema = z.object({
       }
       return parsed;
     }),
-  CLIENT_URL: z
-    .string()
-    .url({ message: 'CLIENT_URL must be a valid URL (e.g., http://localhost:3000)' })
-    .default('http://localhost:3000'),
+  // One URL, or several separated by commas (e.g. "http://localhost:3000,https://abc.trycloudflare.com")
+  CLIENT_URL: z.string().default('http://localhost:3000'),
   NODE_ENV: z
     .enum(['development', 'production', 'test'])
     .default('development'),
@@ -62,6 +60,12 @@ export const env = parsedEnv.success
       LIVEKIT_API_KEY: '',
       LIVEKIT_API_SECRET: '',
     };
+
+/** Parsed list of allowed browser origins (from CLIENT_URL, comma separated). */
+export const allowedOrigins: string[] = String(env.CLIENT_URL)
+  .split(',')
+  .map((s) => s.trim().replace(/\/$/, ''))
+  .filter(Boolean);
 
 export const isSupabaseConfigured = (): boolean =>
   Boolean(env.SUPABASE_URL?.trim() && env.SUPABASE_SERVICE_ROLE_KEY?.trim());
