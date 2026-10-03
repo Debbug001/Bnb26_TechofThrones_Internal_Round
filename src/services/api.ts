@@ -66,10 +66,11 @@ export interface LiveKitTokenResponse {
   participantIdentity?: string;
 }
 
-// Fallback to configured default VITE_API_URL (http://localhost:5000)
+// Default: empty string = same-origin relative URLs ("/api/..."). In dev, Vite proxies "/api" to the
+// backend (see vite.config.ts), so laptops, phones on LAN and tunnels all use ONE address.
+// Only set VITE_API_URL if the backend lives on a different public address.
 const API_BASE_URL =
-  (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ||
-  'http://localhost:5000';
+  ((import.meta.env.VITE_API_URL as string | undefined) || '').trim().replace(/\/$/, '');
 
 /**
  * Checks backend health status via GET /api/health
